@@ -1,0 +1,33 @@
+{
+  "name": "zen-feed",
+  "version": "0.0.1",
+  "description": "Express.js middleware for creating Yandex Zen RSS feed.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "test-watch": "jest --watch",
+    "test-coverage": "jest --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/konrad-molitor/zen-feed.git"
+  },
+  "keywords": [
+    "yandex",
+    "zen",
+    "expressjs",
+    "middleware",
+    "rss"
+  ],
+  "author": "Ismail Valiev (Konrad Molitor)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/konrad-molitor/zen-feed/issues"
+  },
+  "homepage": "https://github.com/konrad-molitor/zen-feed#readme",
+  "devDependencies": {
+    "express": "^4.17.1",
+    "jest": "^24.9.0",
+    "supertest": "^4.0.2"
+  }
+}
