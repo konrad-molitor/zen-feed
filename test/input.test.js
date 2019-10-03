@@ -78,5 +78,4 @@ describe("when getFeedContent doesn't return proper data", () => {
         await zenFeed.feed(null, null, myMock);
         expect(myMock).toBeCalledWith(Error(`getFeedContent() should return array of objects.`));
     });
-
 })
