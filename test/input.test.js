@@ -12,6 +12,29 @@ const config = {
     useParser: false
 };
 
+const sampleItem = {
+    title: "Test title",
+    link: "http://testsite.test/test/",
+    pdalink: "http://pda.testsite.test/test/",
+    amplink: "http://testsite.test/amp/test/",
+    media_rating: "adult",
+    pubDate: Date.now(),
+    author: "Tester Tester",
+    category: ['Технологии', 'Наука', 'Юмор'],
+    enclosure: [
+        {
+            url: "http://testsite.test/test/test.jpg",
+            mimetype: "image/jpeg"
+        },
+        {
+            url: "http://testsite.test/test/test.mp4",
+            mimetype: "video/mp4"
+        }
+    ],
+    description: "Test publication info",
+    content_encoded: "Test publication full text"
+}
+
 const app = express();
 
 zenFeed.configure({
@@ -77,5 +100,24 @@ describe("when getFeedContent doesn't return proper data", () => {
         let myMock = jest.fn();
         await zenFeed.feed(null, null, myMock);
         expect(myMock).toBeCalledWith(Error(`getFeedContent() should return array of objects.`));
+    });
+})
+
+describe('Content filtering', () => {
+    test('should filter incoming items with no mandatory fields', async () => {
+        let sampleContent = [];
+        for (attr in zenFeed.itemTemplate) {
+            let newItem = Object.assign({}, sampleItem);
+            if (zenFeed.itemTemplate[attr].required === true){
+                delete newItem[attr];
+            }
+            sampleContent.push(newItem);
+        }
+        let optionalFieldsCount = 0;
+        for (attr in zenFeed.itemTemplate) {
+            if (zenFeed.itemTemplate[attr].required === false)
+                optionalFieldsCount++
+        }
+        expect(zenFeed.filterContent(sampleContent).length).toBe(optionalFieldsCount);
     });
 })
