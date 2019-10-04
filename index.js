@@ -40,7 +40,7 @@ const feed = {
 }
 
 async function makeFeed (req, res, next){
-    if (!this.config && next)
+    if (!this.config)
         next(new Error('No config provided! Call .config({config}) first.'));
     else {
         let feedContentData = await this.config.getFeedContent();
