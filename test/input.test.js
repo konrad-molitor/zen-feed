@@ -120,4 +120,4 @@ describe('Content filtering', () => {
         }
         expect(zenFeed.filterContent(sampleContent).length).toBe(optionalFieldsCount);
     });
-})
+});
