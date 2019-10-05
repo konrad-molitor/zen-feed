@@ -1,3 +1,5 @@
+[![Coverage Status](https://coveralls.io/repos/github/konrad-molitor/zen-feed/badge.svg)](https://coveralls.io/github/konrad-molitor/zen-feed)
+
 # Zen-feed
 [Express.js](https://expressjs.com/) middleware for creating Yandex Zen RSS feed.
 
