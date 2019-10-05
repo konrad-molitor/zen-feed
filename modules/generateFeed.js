@@ -1,4 +1,7 @@
 const itemTemplate = require('../templates/itemTemplate');
+const categoriesList = require('../templates/zenCategoriesList');
+const mime = require('mime');
+const convert = require('xml-js');
 
 const generateFeed = function (config, items) {
     let feed = element(null, null, null, []);
@@ -28,20 +31,6 @@ const generateFeed = function (config, items) {
         channelElement.elements.push(languageElement);
     }
     // add items
-    const generateItem = (feedItem) => {
-        let item = {
-            type: "element",
-            name: "item",
-            elements: []
-        }
-        //add title
-        let titleElement = textElement("title", feedItem.title);
-        item.elements.push(titleElement);
-        //add link
-        let linkElement = textElement("link", feedItem.link);
-        item.elements.push(linkElement);
-        return item;
-    }
     for (item of items){
         let itemElement = generateItem(item);
         channelElement.elements.push(itemElement);
@@ -68,6 +57,75 @@ function textElement(name, text) {
     return result;
 }
 
+function generateItem(feedItem, useParser) {
+    let item = element("item", "element", null, []);
+    //add title
+    let titleElement = textElement("title", feedItem.title);
+    item.elements.push(titleElement);
+    //add link
+    let linkElement = textElement("link", feedItem.link);
+    item.elements.push(linkElement);
+    //add pdalink if present
+    if (feedItem.pdalink) {
+        let pdalinkElement = textElement("pdalink", feedItem.pdalink);
+        item.elements.push(pdalinkElement);
+    }
+    //add amplink if present
+    if (feedItem.amplink) {
+        let ampLinkElement = textElement("amplink", feedItem.amplink);
+        item.elements.push(ampLinkElement);
+    }
+    //add media:rating if present and contains correct value (othervise pass it)
+    if (feedItem.media_rating && ['adult', 'nonadult'].includes(feedItem.media_rating)){
+        let media_ratingElement = textElement("media:rating", feedItem.media_rating);
+        media_ratingElement.attributes = {scheme: "urn:simple"}
+        item.elements.push(media_ratingElement);
+    }
+    //add pubDate in rfc-882 (UTCString)
+    let pubDateElement = textElement("pubDate", (new Date(feedItem.pubDate)).toUTCString());
+    item.elements.push(pubDateElement);
+    //add author
+    let authorElement = textElement("author", feedItem.author);
+    item.elements.push(authorElement);
+    //add categories
+    for (cat of feedItem.category){
+        if (categoriesList.includes(cat)) {
+            let catElement = textElement("category", cat);
+            item.elements.push(catElement);
+        }
+    }
+    //add enclosure
+    for (enc of feedItem.enclosure) {
+        let enclosureElement = element("enclosure",
+        "element",
+        {
+            url: enc,
+            type: mime.getType(enc.split('.')[enc.split('.').length-1])
+        })
+        item.elements.push(enclosureElement);
+    }
+    //add description (if present)
+    if (feedItem.description) {
+        let descriptionElement = element("description", "element", null, []);
+        descriptionElement.elements.push({
+            type: "cdata",
+            cdata: feedItem.description
+        })
+        item.elements.push(descriptionElement);
+    }
+    //add content:encoded (full text)
+    // if not using built-in parser
+    if(!useParser) {
+        let content_encodedElement = element("content:encoded", "element", null, []);
+        content_encodedElement.elements.push({
+            type: "cdata",
+            cdata: feedItem.content_encoded
+        });
+        item.elements.push(content_encodedElement);
+    }
+    return item;
+}
+
 function filterContent(content){
     return content.filter(item => {
         for (attr in itemTemplate) {
@@ -78,9 +136,16 @@ function filterContent(content){
     })
 }
 
+function getXMLfeed(feedObj){
+    let xml = convert.js2xml(feedObj, {compact: false, spaces: 4});
+    return xml;
+}
+
 module.exports = {
     generateFeed,
     element,
     textElement,
-    filterContent
+    filterContent,
+    generateItem,
+    getXMLfeed
 }

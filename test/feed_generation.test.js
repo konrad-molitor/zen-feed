@@ -1,6 +1,11 @@
 const {generateFeed} = require('../modules/generateFeed');
 const {filterContent} = require('../modules/generateFeed');
+const {generateItem} = require('../modules/generateFeed');
 const itemTemplate = require('../templates/itemTemplate');
+const categoryList = require('../templates/zenCategoriesList');
+const {getXMLfeed} = require('../modules/generateFeed');
+const convert = require('xml-js');
+const fs = require('fs');
 
 const sampleItems = [
     {
@@ -18,10 +23,11 @@ const sampleItems = [
         enclosure: [
             "http://testsite.site/imgs/test.jpg"
         ],
-        desription: "Test description",
-        content_encoded: `<![CDATA[
+        description: "Test description",
+        content_encoded: `
             Test publication text
-            ]]>`
+            We have cookies!
+            `
     }
 ];
 
@@ -35,6 +41,14 @@ const config = {
         return sampleItems;
     },
     useParser: false
+}
+
+const findOneByName = (el, name) => {
+    return el.elements.find(item => item.name === name);
+}
+
+const findByName = (el, name) => {
+    return el.elements.filter(item => item.name === name);
 }
 
 describe('Generating feed object', () => {
@@ -56,14 +70,16 @@ describe('Generating feed object', () => {
                 expect(rssObject.elements[0].elements.filter(item => item.name === "channel").length).toBe(1);
             });
             test('title', () => {
-                expect(channelObject.elements.find(item => item.name === "title").elements[0].text).toBe(config.channelTitle);
+                //expect(channelObject.elements.find(item => item.name === "title").elements[0].text).toBe(config.channelTitle);
+                expect(findOneByName(channelObject, "title").elements[0].text).toBe(config.channelTitle);
             });
             test('link', () => {
-                expect(channelObject.elements.find(item => item.name === "link").elements[0].text).toBe(config.siteLink);
+                // expect(channelObject.elements.find(item => item.name === "link").elements[0].text).toBe(config.siteLink);
+                expect(findOneByName(channelObject, "link").elements[0].text).toBe(config.siteLink);
             });
             test('description (if present)', () => {
                 if (config.channelDescription) {
-                    expect(channelObject.elements.find(item => item.name === "description").elements[0].text).toBe(config.channelDescription);
+                    expect(findOneByName(channelObject, "description").elements[0].text).toBe(config.channelDescription);
                 };
             });
             test('no description element if description not provided', () => {
@@ -71,11 +87,11 @@ describe('Generating feed object', () => {
                 delete(newConfig.channelDescription);
                 let newFeedObject = generateFeed(newConfig, sampleItems);
                 let newChannelObject = newFeedObject.elements[0].elements[0];
-                expect(newChannelObject.elements.filter(item => item.name === "description").length).toBe(0);
+                expect(findByName(newChannelObject, "description").length).toBe(0);
             });
             test('language (if present)', () => {                
                 if (config.channelLanguage) {
-                    expect(channelObject.elements.find(item => item.name === "language").elements[0].text).toBe(config.channelLanguage);
+                    expect(findOneByName(channelObject, "language").elements[0].text).toBe(config.channelLanguage);
                 }
             });
             test('no language element if language not provided', () => {
@@ -83,10 +99,10 @@ describe('Generating feed object', () => {
                 delete(newConfig.channelLanguage);
                 let newFeedObject = generateFeed(newConfig, sampleItems);
                 let newChannelObject = newFeedObject.elements[0].elements[0];
-                expect(newChannelObject.elements.filter(item => item.name === "language").length).toBe(0);
+                expect(findByName(newChannelObject, "language").length).toBe(0);
             });
             test('item - should be at least one', () => {
-                expect(channelObject.elements.filter(item => item.name === "item").length).toBeGreaterThanOrEqual(1);
+                expect(findByName(channelObject, "item").length).toBeGreaterThanOrEqual(1);
             });
         });        
         describe('items', () => {
@@ -108,29 +124,82 @@ describe('Generating feed object', () => {
                     expect(filterContent(sampleContent).length).toBe(optionalFieldsCount);
                 });
             });
-            // let items;
-            // beforeAll(() => {
-            //     items = channelObject.elements.filter(item => item.name === "item");
-            // })
-            // const checkForSingleElement = (item, name) => {
-            //     if (item.elements.filter(el => el.name === name).length === 1) return true;
-            //         else return false;
-            // }
-            // test('title', () => {
-            //     expect(items.every(item => checkForSingleElement(item, "title"))).toBeTruthy();
-            // });
-            // test('link', () => {
-            //     expect(items.every(item => checkForSingleElement(item, "link"))).toBeTruthy();
-            // });
-            // test.todo('pdalink (if present)');
-            // test.todo('amplink (if present)');
-            // test.todo('media:rating (if present; should be ONLY "adult" | "nonadult")');
-            // test.todo('pubDate');
-            // test.todo('author');
-            // test.todo('category (if present; should contain only items from categoryList)');
-            // test.todo('enclosure (should contain at least one element)');
-            // test.todo('description (if present)');
-            // test.todo('content:encoded');
+            describe('item generation', () => {
+                let sampleItem = sampleItems[0];            
+                test('title', () => {
+                    expect(findOneByName(generateItem(sampleItem), "title")
+                        .elements[0].text)
+                        .toBe(sampleItem.title);
+                });
+                test('link', () => {
+                    expect(findOneByName(generateItem(sampleItem), "link")
+                        .elements[0].text)
+                        .toBe(sampleItem.link);
+                })
+                test('pdalink (if present)', () => {
+                    expect(findOneByName(generateItem(sampleItem), "pdalink")
+                    .elements[0].text)
+                    .toBe(sampleItem.pdalink);
+                });
+                test('no pdalink elements if pdalink not present', () => {
+                    let newItem = Object.assign({}, sampleItem);
+                    delete newItem.pdalink;
+                    expect(findByName(generateItem(newItem), "pdalink").length)
+                        .toBe(0);
+                })
+                test('amplink (if present)', () => {
+                    expect(findOneByName(generateItem(sampleItem), "amplink")
+                    .elements[0].text)
+                    .toBe(sampleItem.amplink);
+                });
+                test('no amplink elements if amplink not present', () => {
+                    let newItem = Object.assign({}, sampleItem);
+                    delete newItem.amplink;
+                    expect(findByName(generateItem(newItem), "amplink").length)
+                        .toBe(0);
+                })
+                test('media:rating (if present; should be ONLY "adult" | "nonadult")', () => {
+                    expect(findOneByName(generateItem(sampleItem), "media:rating")
+                        .elements[0].text)
+                        .toBe(sampleItem.media_rating);
+                });
+                test('pubDate', () => {
+                    expect(findOneByName(generateItem(sampleItem), "pubDate")
+                    .elements[0].text)
+                    .toBe((new Date(sampleItem.pubDate)).toUTCString());
+                });
+                test('author', () => {
+                    expect(findOneByName(generateItem(sampleItem), "author")
+                    .elements[0].text)
+                    .toBe(sampleItem.author);
+                });
+                test('category (if present; should contain only items from categoryList)', () => {
+                    let categories = findByName(generateItem(sampleItem), "category").map(item => item.elements[0].text);
+                    expect(categories).toEqual(sampleItem.category);
+                });
+                test('enclosure (should contain at least one element)', () => {
+                    expect(findByName(generateItem(sampleItem), "enclosure").length).toBeGreaterThanOrEqual(1);
+                });
+                test('description (if present)', () => {
+                    expect(findOneByName(generateItem(sampleItem), "description")
+                        .elements[0].cdata)
+                        .toBe(sampleItem.description);
+                });
+                test('content:encoded w/o parser', () => {
+                    expect(findOneByName(generateItem(sampleItem), "content:encoded")
+                    .elements[0].cdata)
+                    .toBe(sampleItem.content_encoded);
+                });
+            });
         })
     })
 });
+
+describe('xml generation', () => {
+    test('xml converted back to js-object should be equal passed object', () => {
+        let feedObj = generateFeed(config, sampleItems);
+        let resultXML = getXMLfeed(feedObj);
+        //fs.writeFileSync('xml.xml', resultXML);
+        expect(convert.xml2js(resultXML)).toEqual(feedObj);
+    })
+})
