@@ -49,8 +49,6 @@ zenFeed.configure({
 
 app.get('/feed/rss.xml', zenFeed.feed);
 
-const server = app.listen(3000, 'localhost', () => {});
-
 describe('when config not provided', () => {
     beforeEach(() => {
         zenFeed.config = undefined;
