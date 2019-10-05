@@ -141,11 +141,19 @@ function getXMLfeed(feedObj){
     return xml;
 }
 
+function serveRss(config, items){
+    let filteredItems = filterContent(items);
+    let feed = generateFeed(config, filteredItems);
+    let xml = getXMLfeed(feed);
+    return xml;
+}
+
 module.exports = {
     generateFeed,
     element,
     textElement,
     filterContent,
     generateItem,
-    getXMLfeed
+    getXMLfeed,
+    serveRss
 }

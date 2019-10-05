@@ -4,12 +4,11 @@
 const convert = require('xml-js');
 
 const configCheck = require('./modules/configCheck');
-const {generateFeed} = require('./modules/generateFeed');
+const {serveRss} = require('./modules/generateFeed');
 
 const feed = {
     feed: makeFeed,
-    configure,
-    generateFeed
+    configure    
 }
 
 async function makeFeed (req, res, next){
@@ -25,8 +24,11 @@ async function makeFeed (req, res, next){
             next(new Error(`getFeedContent() returned ${typeof feedContentData} instead of array.`));
         } else if (feedContentData.some(item => typeof(item) !== 'object')){
             next(new Error('getFeedContent() should return array of objects.'));
-        }
-        next()
+        } else {
+            let xml = serveRss(this.config, feedContentData);
+            res.status(200).send(xml);
+        }        
+        next();
     }    
 }
 
