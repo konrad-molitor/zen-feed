@@ -1,4 +1,6 @@
-const zenFeed = require('../index');
+const {generateFeed} = require('../modules/generateFeed');
+const {filterContent} = require('../modules/generateFeed');
+const itemTemplate = require('../templates/itemTemplate');
 
 const sampleItems = [
     {
@@ -39,7 +41,7 @@ describe('Generating feed object', () => {
     let rssObject;
     let channelObject;
     beforeAll(() => {
-        rssObject = zenFeed.generateFeed(config, sampleItems);
+        rssObject = generateFeed(config, sampleItems);
         channelObject = rssObject.elements[0].elements[0];
     })
     describe('channel info', () => {
@@ -67,7 +69,7 @@ describe('Generating feed object', () => {
             test('no description element if description not provided', () => {
                 let newConfig = Object.assign({}, config);
                 delete(newConfig.channelDescription);
-                let newFeedObject = zenFeed.generateFeed(newConfig, sampleItems);
+                let newFeedObject = generateFeed(newConfig, sampleItems);
                 let newChannelObject = newFeedObject.elements[0].elements[0];
                 expect(newChannelObject.elements.filter(item => item.name === "description").length).toBe(0);
             });
@@ -79,15 +81,33 @@ describe('Generating feed object', () => {
             test('no language element if language not provided', () => {
                 let newConfig = Object.assign({}, config);
                 delete(newConfig.channelLanguage);
-                let newFeedObject = zenFeed.generateFeed(newConfig, sampleItems);
+                let newFeedObject = generateFeed(newConfig, sampleItems);
                 let newChannelObject = newFeedObject.elements[0].elements[0];
                 expect(newChannelObject.elements.filter(item => item.name === "language").length).toBe(0);
             });
             test('item - should be at least one', () => {
                 expect(channelObject.elements.filter(item => item.name === "item").length).toBeGreaterThanOrEqual(1);
             });
-        });
+        });        
         describe('items', () => {
+            describe('Content filtering', () => {
+                test('should filter incoming items with no mandatory fields', async () => {
+                    let sampleContent = [];
+                    for (attr in itemTemplate) {
+                        let newItem = Object.assign({}, sampleItems[0]);
+                        if (itemTemplate[attr].required === true){
+                            delete newItem[attr];
+                        }
+                        sampleContent.push(newItem);
+                    }
+                    let optionalFieldsCount = 0;
+                    for (attr in itemTemplate) {
+                        if (itemTemplate[attr].required === false)
+                            optionalFieldsCount++                           
+                    }
+                    expect(filterContent(sampleContent).length).toBe(optionalFieldsCount);
+                });
+            });
             // let items;
             // beforeAll(() => {
             //     items = channelObject.elements.filter(item => item.name === "item");

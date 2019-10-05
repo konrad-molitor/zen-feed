@@ -103,21 +103,3 @@ describe("when getFeedContent doesn't return proper data", () => {
     });
 })
 
-describe('Content filtering', () => {
-    test('should filter incoming items with no mandatory fields', async () => {
-        let sampleContent = [];
-        for (attr in zenFeed.itemTemplate) {
-            let newItem = Object.assign({}, sampleItem);
-            if (zenFeed.itemTemplate[attr].required === true){
-                delete newItem[attr];
-            }
-            sampleContent.push(newItem);
-        }
-        let optionalFieldsCount = 0;
-        for (attr in zenFeed.itemTemplate) {
-            if (zenFeed.itemTemplate[attr].required === false)
-                optionalFieldsCount++
-        }
-        expect(zenFeed.filterContent(sampleContent).length).toBe(optionalFieldsCount);
-    });
-});
