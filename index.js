@@ -6,6 +6,8 @@ const convert = require('xml-js');
 const configTemplate = require('./templates/configTemplate');
 const itemTemplate = require('./templates/itemTemplate');
 
+const configCheck = require('./modules/configCheck');
+
 const feed = {
     feed: makeFeed,
     configure,
@@ -118,18 +120,16 @@ function filterContent(content){
     })
 }
 
-function configure(config){
-    if ((typeof config) !== 'object' || config === null || Array.isArray(config)) 
-        throw new Error('Config should be an object.')
-    for (parameter in this.configTemplate){
-        if (this.configTemplate[parameter].required && !config.hasOwnProperty(parameter)) 
-            throw new Error(`${parameter} is required.`)
+function configure(config) {
+    try {
+        if (configCheck(config)) {
+            this.config = config;
+        } else {
+            throw new Error('Configure failed because reason.');
+        }
+    } catch (err) {
+        throw (err);
     }
-    for (parameter in config){
-        if ((typeof config[parameter]) !== this.configTemplate[parameter].type) 
-            throw new Error(`${parameter} must be type of ${this.configTemplate[parameter].type}.`);
-    }
-    this.config = config;
 }
 
 module.exports = feed;
