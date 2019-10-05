@@ -1,13 +1,14 @@
 {
   "name": "zen-feed",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Express.js middleware for creating Yandex Zen RSS feed.",
   "main": "index.js",
   "scripts": {
     "test": "jest",
     "test-watch": "jest --watch",
     "test-coverage": "jest --coverage",
-    "test-verbose": "jest --verbose"
+    "test-verbose": "jest --verbose",
+    "coveralls": "jest --coverage --coverageReporters=text-lcov | ./node_modules/coveralls/bin/coveralls.js"
   },
   "repository": {
     "type": "git",
@@ -27,6 +28,7 @@
   },
   "homepage": "https://github.com/konrad-molitor/zen-feed#readme",
   "devDependencies": {
+    "coveralls": "^3.0.6",
     "express": "^4.17.1",
     "jest": "^24.9.0",
     "supertest": "^4.0.2"
