@@ -1,3 +1,5 @@
+[![Known Vulnerabilities](https://snyk.io/test/github/konrad-molitor/zen-feed/badge.svg)](https://snyk.io/test/github/konrad-molitor/zen-feed)
+[![Build Status](https://travis-ci.org/konrad-molitor/zen-feed.svg?branch=master)](https://travis-ci.org/konrad-molitor/zen-feed)
 [![Coverage Status](https://coveralls.io/repos/github/konrad-molitor/zen-feed/badge.svg)](https://coveralls.io/github/konrad-molitor/zen-feed)
 
 # Zen-feed
