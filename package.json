@@ -30,5 +30,8 @@
     "express": "^4.17.1",
     "jest": "^24.9.0",
     "supertest": "^4.0.2"
+  },
+  "dependencies": {
+    "xml-js": "^1.6.11"
   }
 }
