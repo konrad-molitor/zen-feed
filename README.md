@@ -35,7 +35,7 @@ In your express application:
 
     app.use('/path/to/feed.rss', (req, res, next) => zenFeed.feed(req, res, next));
 
-```config``` should besupplied before calling ```zenFeed.feed```
+```config``` should be supplied before calling ```zenFeed.feed```
 
 Config format:
 
