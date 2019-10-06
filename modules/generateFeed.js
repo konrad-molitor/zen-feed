@@ -2,6 +2,7 @@ const itemTemplate = require('../templates/itemTemplate');
 const categoriesList = require('../templates/zenCategoriesList');
 const mime = require('mime');
 const convert = require('xml-js');
+const parse = require('./contentParser');
 
 const generateFeed = function (config, items) {
     let feed = element(null, null, null, []);
@@ -115,13 +116,16 @@ function generateItem(feedItem, useParser) {
     }
     //add content:encoded (full text)
     // if not using built-in parser
+    let contendData;
     if (useParser) {
-        console.log('Zen-Feed: built-in parser not implemented yet.');
+        contentData = parse(feedItem.content_encoded);
+    } else {
+        contentData = feedItem.content_encoded;
     }
     let content_encodedElement = element("content:encoded", "element", null, []);
     content_encodedElement.elements.push({
         type: "cdata",
-        cdata: feedItem.content_encoded
+        cdata: contentData
     });
     item.elements.push(content_encodedElement);
     return item;

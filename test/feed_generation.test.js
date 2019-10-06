@@ -5,7 +5,25 @@ const itemTemplate = require('../templates/itemTemplate');
 const categoryList = require('../templates/zenCategoriesList');
 const {getXMLfeed} = require('../modules/generateFeed');
 const convert = require('xml-js');
-const fs = require('fs');
+const sanitize = require('sanitize-html');
+const sampleHtml = require('./sampleHtml');
+
+const sanitizeConfig = {
+    allowedTags: ['b',
+     'i', 
+     'em', 
+     'strong', 
+     'a', 
+     'img', 
+     'video', 
+     'figure', 
+     'figcaption', 
+     'media:content',
+     'media:description',
+     'media:copyright',
+     'span'
+    ]
+};
 
 const sampleItems = [
     {
@@ -186,10 +204,20 @@ describe('Generating feed object', () => {
                         .toBe(sampleItem.description);
                 });
                 test('content:encoded w/o parser', () => {
-                    expect(findOneByName(generateItem(sampleItem), "content:encoded")
-                    .elements[0].cdata)
-                    .toBe(sampleItem.content_encoded);
+                    if (!config.useParser) {
+                        expect(findOneByName(generateItem(sampleItem), "content:encoded")
+                        .elements[0].cdata)
+                        .toBe(sampleItem.content_encoded);
+                    }                    
                 });
+                test('content:encoded with parser', () => {
+                    let newSampleItem = Object.assign({}, sampleItem);
+                    newSampleItem.content_encoded = sampleHtml;
+                    let item = generateItem(newSampleItem, true);
+                    expect(findOneByName(item, "content:encoded")
+                        .elements[0].cdata)
+                        .toBe(sanitize(sampleHtml, sanitizeConfig));
+                })
             });
         })
     })

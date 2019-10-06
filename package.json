@@ -28,6 +28,7 @@
   },
   "homepage": "https://github.com/konrad-molitor/zen-feed#readme",
   "devDependencies": {
+    "cheerio": "^1.0.0-rc.3",
     "coveralls": "^3.0.6",
     "express": "^4.17.1",
     "jest": "^24.9.0",
@@ -35,6 +36,7 @@
   },
   "dependencies": {
     "mime": "^2.4.4",
+    "sanitize-html": "^1.20.1",
     "xml-js": "^1.6.11"
   }
 }

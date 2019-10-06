@@ -1,0 +1,270 @@
+
+
+
+
+<a href="https://4.bp.blogspot.com/-pSUzpv74_Ks/V2lnAVjr4fI/AAAAAAAAEh4/4PKG6IasX6knYIdTZc2y98HlIxXUXEyxgCLcB/s1600/9c29dc2a2609311cc4b67c095172d3ea.png"><img src="https://4.bp.blogspot.com/-pSUzpv74_Ks/V2lnAVjr4fI/AAAAAAAAEh4/4PKG6IasX6knYIdTZc2y98HlIxXUXEyxgCLcB/s400/9c29dc2a2609311cc4b67c095172d3ea.png" /></a>
+
+
+
+Пользователи и программы
+
+Пользователи - ужасные существа. Серьёзно. Они постоянно пытаются сделать что-то ужасное. По незнанию, а то и вовсе из вредности. Не доверяйте пользователям. Ибо всё, что они могут сделать плохого, они обязательно сделают.
+
+Теперь выдохнули.
+
+
+
+Проблема
+
+Представим, что у нас есть сайт с back-end'ом на Node.JS. И мы (о, ужас!) разрешаем пользователям размещать на этом сайте свой контент, в том числе и в виде форматированного текста. Форматирование текста в Web, если кто-то забыл, осуществляется с помощью гипертекстового языка разметки (больше известного как HTML). Теперь взглянем на проблему "в поле".
+
+
+
+Имитируем back-end
+
+Напишем простой сервер, который принимает от пользователя текстовые данные и тут же возвращает их ему самому для просмотра. Для большей наглядности я даже не стану использовать Postman и curl в качестве фронт-энда.
+
+
+
+Итак, простой сервер:
+
+
+<b>server.js</b>
+<b></b>
+<span>var</span> express <span>=</span> require(<span><span>'</span>express<span>'</span></span>)
+<span>var</span> app <span>=</span> express()
+
+<span>var</span> bodyParser <span>=</span> require(<span><span>'</span>body-parser<span>'</span></span>)
+
+app.use(bodyParser.json())
+
+<span>/</span><span>*</span><span>*</span>
+ <span>*</span> <span>Этот</span> <span>модуль</span> <span>можно</span> <span>использовать</span> <span>в</span> <span>качестве</span> <span>сервера</span> <span>статического</span> <span>контента</span>,
+ <span>*</span> <span>например</span>, <span>файлов</span> <span>html</span>, <span>картинок</span>, <span>css</span> <span>и</span> <span>прочего</span>.
+ <span>*</span> <span>Но</span> <span>не</span> <span>стоит</span>. <span>Какой</span><span>-</span><span>нибудь</span> <span>nginx</span> <span>с</span> <span>этим</span> <span>справится</span> <span>гораздо</span> <span>лучше</span> <span>и</span> <span>быстрее</span>.
+ <span>*</span> <span>Используйте</span> <span>его</span> <span>только</span> <span>в</span> <span>целях</span> <span>разработки</span>.
+ <span>*</span> <span>В</span> <span>данном</span> <span>случае</span>, <span>он</span> <span>будет</span> <span>искать</span> <span>файлы</span> <span>в</span> <span>папке</span> <span>static</span>.
+ <span>*</span> <span>Например</span>, <span>в</span> <span>ответ</span> <span>на</span> <span>запрос</span> <span>http</span><span>:</span><span>/</span><span>/</span><span>...</span><span>/</span><span>somefile.file</span>
+ <span>*</span> <span>будет</span> <span>выслан</span> <span>файл</span> <span>/</span><span>static</span><span>/</span><span>somefile.file</span> 
+ <span>*</span><span>/</span>
+app.use(express.static(<span><span>'</span>static<span>'</span></span>))
+
+app.use(<span><span>'</span>/api<span>'</span></span>, require(<span><span>'</span>./api<span>'</span></span>))
+
+<span>var</span> server <span>=</span> app.listen( <span>process.env.PORT</span> <span>||</span> <span>3000</span>, <span>function</span>(){
+    console.log(<span><span>'</span>Server up and running on port %d<span>'</span></span>, server.address().<span>port</span>)
+})
+
+
+
+
+<b>/api/index.js</b>
+<b></b>
+<span>// импортируем роутер</span>
+<span>var</span> router <span>=</span> require<span>(</span><span><span>'</span>express<span>'</span></span><span>)</span>.Router<span>(</span><span>)</span>
+<span>// а эту переменную будем использовать вместо "базы данных"</span>
+<span>// в реальном приложении, конечно, данные будут запрашиваться из БД</span>
+<span>var</span> postData; 
+
+<span>/* этот метод просто извлекает из тела запроса параметр body
+ * и присваевает его значение переменной postData
+ */</span>
+router.post<span>(</span><span><span>'</span>/<span>'</span></span>, <span><span>function</span> <span>(</span>req, res, next)</span> <span>{</span>
+    postData <span>=</span> req.body.body;
+    res.sendStatus<span>(</span><span>201</span><span>)</span>
+<span>}</span><span>)</span>
+
+<span>/**
+ * этот метод просто возвращает данные из переменной postData, 
+ * если в ней что-то есть. Если нет - возвращает 404.
+ */</span>
+router.get<span>(</span><span><span>'</span>/<span>'</span></span>, <span><span>function</span> <span>(</span>req, res, next)</span> <span>{</span>
+    <span>if</span> <span>(</span>postData<span>)</span><span>{</span>
+        res.<span>send</span><span>(</span>postData<span>)</span>
+    <span>}</span> <span>else</span> <span>{</span>
+        res.sendStatus<span>(</span><span>404</span><span>)</span>
+    <span>}</span>
+<span>}</span><span>)</span>
+
+module.exports <span>=</span> router
+
+
+Ну и моя печаль и беда - фронт-энд.
+
+<b>/static/index.html</b>
+<b></b>
+
+<span><span>&lt;!</span><span>DOCTYPE</span> html<span>&gt;</span></span>
+<span>&lt;</span><span>html</span> <span>lang</span>=<span><span>"</span>ru<span>"</span></span><span>&gt;</span>
+    <span>&lt;</span><span>head</span><span>&gt;</span>
+        <span>&lt;</span><span>title</span><span>&gt;</span>User content example<span>&lt;/</span><span>title</span><span>&gt;</span>
+        <span>&lt;</span><span>meta</span> <span>charset</span>=<span><span>"</span>UTF-8<span>"</span></span><span>&gt;</span>
+        <span>&lt;</span><span>meta</span> <span>name</span>=<span><span>"</span>viewport<span>"</span></span> <span>content</span>=<span><span>"</span>width=device-width, initial-scale=1.0, minimum-scale=1.0<span>"</span></span><span>&gt;</span>
+        <span>&lt;</span><span>link</span> <span>rel</span>=<span><span>"</span>stylesheet<span>"</span></span> <span>href</span>=<span><span>"</span>https://fonts.googleapis.com/icon?family=Material+Icons<span>"</span></span><span>&gt;</span>
+        <span>&lt;</span><span>link</span> <span>rel</span>=<span><span>"</span>stylesheet<span>"</span></span> <span>href</span>=<span><span>"</span>https://code.getmdl.io/1.1.3/material.amber-yellow.min.css<span>"</span></span><span> /&gt;</span>
+        <span>&lt;</span><span>link</span> <span>rel</span>=<span><span>"</span>stylesheet<span>"</span></span> <span>href</span>=<span><span>"</span>style.css<span>"</span></span>
+    &lt;/<span>head</span><span>&gt;</span>
+    <span>&lt;</span><span>body</span> <span>ng-app</span>=<span><span>"</span>app<span>"</span></span><span>&gt;</span>
+        <span>&lt;</span><span>div</span> <span>ng-controller</span>=<span><span>"</span>MainController<span>"</span></span> <span>class</span>=<span><span>"</span>page-main mdl-layout mdl-js-layout mdl-color--grey-100 is-small-screen<span>"</span></span><span>&gt;</span>
+            <span>&lt;</span><span>div</span> <span>class</span>=<span><span>"</span>main mdl-layout-content<span>"</span></span><span>&gt;</span>
+                <span>&lt;</span><span>div</span> <span>class</span>=<span><span>"</span>card mdl-color--white mdl-shadow--4dp content mdl-color-text--grey-800 mdl-cell mdl-cell--8-col<span>"</span></span><span>&gt;</span>
+                    <span>&lt;</span><span>div</span> <span>class</span>=<span><span>"</span>textareaholder mdl-textfield mdl-js-textfield<span>"</span></span><span>&gt;</span>
+                        <span>&lt;</span><span>textarea</span> <span>class</span>=<span><span>"</span>userinput mdl-textfield__input<span>"</span></span> <span>id</span><span>=</span><span><span>"</span>userinput<span>"</span></span> <span>type</span>=<span><span>"</span>text<span>"</span></span> <span>rows</span>=<span><span>"</span>5<span>"</span></span> <span>ng-model</span>=<span><span>"</span>userinput<span>"</span></span><span>&gt;&lt;/</span><span>textarea</span><span>&gt;</span>
+                        <span>&lt;</span><span>label</span> <span>class</span>=<span><span>"</span>mdl-textfield__label<span>"</span></span> <span>for</span>=<span><span>"</span>userinput<span>"</span></span><span>&gt;</span>Введите HTML здесь...<span>&lt;/</span><span>label</span><span>&gt;</span>  
+                    <span>&lt;/</span><span>div</span><span>&gt;</span>
+                    <span>&lt;</span><span>button</span> <span>class</span>=<span><span>"</span>mdl-button mdl-js-button mdl-button--raised mdl-button--accent<span>"</span></span> <span>ng-click</span>=<span><span>"</span>send()<span>"</span></span><span>&gt;</span>Отправить<span>&lt;/</span><span>button</span><span>&gt;</span>
+                <span>&lt;/</span><span>div</span><span>&gt;</span>
+                <span>&lt;</span><span>div</span> <span>class</span>=<span><span>"</span>card mdl-color--white mdl-shadow--4dp content mdl-color-text--grey-800 mdl-cell mdl-cell--8-col<span>"</span></span><span>&gt;</span>
+                    <span>&lt;</span><span>p</span><span>&gt;</span><span>&lt;</span><span>div</span> <span>ng-bind-html</span>=<span><span>"</span>servedContent<span>"</span></span><span>&gt;&lt;/</span><span>div</span><span>&gt;</span><span>&lt;/</span><span>p</span><span>&gt;</span>
+                <span>&lt;/</span><span>div</span><span>&gt;</span>
+            <span>&lt;/</span><span>div</span><span>&gt;</span>
+        <span>&lt;/</span><span>div</span><span>&gt;</span>        
+    <span>&lt;/</span><span>body</span><span>&gt;</span>
+    <span>&lt;</span><span>script</span> <span>defer</span> <span>src</span>=<span><span>"</span>https://code.getmdl.io/1.1.3/material.min.js<span>"</span></span><span>&gt;</span><span>&lt;/</span><span>script</span><span>&gt;</span>
+    <span>&lt;</span><span>script</span> <span>src</span>=<span><span>"</span>https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.min.js<span>"</span></span><span>&gt;</span><span>&lt;/</span><span>script</span><span>&gt;</span>
+    <span>&lt;</span><span>script</span> <span>src</span>=<span><span>"</span>app.js<span>"</span></span><span>&gt;</span><span>&lt;/</span><span>script</span><span>&gt;</span>
+<span>&lt;/</span><span>html</span><span>&gt;</span>
+
+
+<b>/static/app.js</b>
+<b></b>
+
+angular.module<span>(</span><span><span>'</span>app<span>'</span></span>, <span>[</span><span>]</span><span>)</span>
+.controller<span>(</span><span><span>'</span>MainController<span>'</span></span>, 
+<span>[</span>
+    <span><span>'</span>$scope<span>'</span></span>, 
+    <span><span>'</span>$http<span>'</span></span>, 
+    <span><span>'</span>$sce<span>'</span></span>, 
+    <span><span>function</span> <span>(</span>$scope, $http, $sce)</span> <span>{</span>
+    <span>$</span>scope.userinput <span>=</span> <span>null</span>;
+    <span>$</span>scope.servedContent <span>=</span> <span>null</span>;
+    <span>/**
+     * Эта функция контроллёра привязана к ng-click единственной кнопки.
+     * Она отправляет запрос типа POST с введёнными данными из textarea
+     * и сразу же отправляет запрос GET, получая данные для ng-bind-html
+     */</span>
+    <span><span>$scope</span>.<span>send</span> <span>=</span> <span>function</span>()</span> <span>{</span>
+        <span>if</span> <span>(</span><span>$</span>scope.userinput<span>)</span><span>{</span>
+            post <span>=</span> <span>{</span> body: <span>$</span>scope.userinput<span>}</span>;
+            <span>var</span> postReq <span>=</span> <span>{</span>
+                method: <span><span>'</span>POST<span>'</span></span>,
+                url: <span><span>'</span>http://localhost:3000/api/<span>'</span></span>,
+                data: post
+            <span>}</span>
+            <span>$</span>http<span>(</span>postReq<span>)</span>
+            <span>var</span> getReq <span>=</span> <span>{</span>
+                method: <span><span>'</span>GET<span>'</span></span>,
+                url: <span><span>'</span>http://localhost:3000/api/<span>'</span></span>
+            <span>}</span>
+            <span>$</span>http<span>(</span>getReq<span>)</span>.then<span>(</span><span><span>function</span> <span>(</span>response)</span> <span>{</span>
+                console<span>.log</span><span>(</span><span>$</span>scope.servedContent<span>)</span>
+                <span>/**
+                 * Обратите внимание на функцию $sce.trustAsHtml, которой мы передаём
+                 * полученные от сервера данные. Без этой функции сервис Strict Contextual
+                 * Escaping не даст встраивать какой попало HTML-код в документ в целях
+                 * безопасности.
+                 */</span>
+                <span>$</span>scope.servedContent <span>=</span><span>$</span>sce.trustAsHtml<span>(</span>response.data<span>)</span>;
+            <span>}</span><span>)</span>
+        <span>}</span>
+    <span>}</span>
+<span>}</span><span>]</span><span>)</span>
+
+<b></b><b>/static/style.css</b>
+<b></b>
+
+<span><span>.main</span> </span><span>{</span>
+    <span><span>margin</span></span><span><span>:</span> <span>3<span>%</span></span><span>;</span></span>
+    <span><span>height</span></span><span><span>:</span> <span>100</span>vh<span>;</span></span>
+}
+<span><span>.card</span> </span><span>{</span>
+    <span><span>border-radius</span></span><span><span>:</span> <span>1<span>%</span></span><span>;</span></span>
+    <span><span>min-height</span></span><span><span>:</span> <span>45</span>vh<span>;</span></span>
+    <span><span>padding</span></span><span><span>:</span> <span>3<span>%</span></span><span>;</span></span>
+    <span>align-<span>content</span></span><span><span>:</span> center<span>;</span></span>
+}
+<span><span>.textareaholder</span> </span><span>{</span>
+    <span><span>height</span></span><span><span>:</span> inherit<span>;</span></span>
+    <span><span>width</span></span><span><span>:</span> inherit<span>;</span></span>
+    <span>align-<span>content</span></span><span><span>:</span> center<span>;</span></span>
+}
+<span><span>.userinput</span> </span><span>{</span>
+    <span><span>width</span></span><span><span>:</span> inherit<span>;</span></span>
+    <span><span>height</span></span><span><span>:</span> inherit<span>;</span></span>
+}
+
+
+Запустим сервер и перейдём на http://localhost:3000.
+
+
+<a href="https://2.bp.blogspot.com/-M1GzbPv1X5k/V2lrW8l-KkI/AAAAAAAAEiE/Qchk45cYcSghl8H84D_xP3scZmfJFGJQACLcB/s1600/initial.png"><img src="https://2.bp.blogspot.com/-M1GzbPv1X5k/V2lrW8l-KkI/AAAAAAAAEiE/Qchk45cYcSghl8H84D_xP3scZmfJFGJQACLcB/s640/initial.png" /></a>
+
+
+
+Итак, с одной стороны всё хорошо.
+
+
+
+<a href="https://2.bp.blogspot.com/-DWdSYJcPDuY/V2lsR1OQD5I/AAAAAAAAEiQ/uuI-z_XhrFUSKt45aGEuXyJSoyJpw5KwACLcB/s1600/sample.png"><img src="https://2.bp.blogspot.com/-DWdSYJcPDuY/V2lsR1OQD5I/AAAAAAAAEiQ/uuI-z_XhrFUSKt45aGEuXyJSoyJpw5KwACLcB/s400/sample.png" /></a>
+
+
+
+Форматирование есть, картинки вставляются. Что ещё нужно для счастья?
+
+Но вот это вот совсем нехорошо:
+
+
+
+<a href="https://2.bp.blogspot.com/-GOLhIB6sws0/V2ls_i0QrOI/AAAAAAAAEic/ssdGN7D04ZUxKZu6tMkyZJW-aRHHhn2aACLcB/s1600/script.png"><img src="https://2.bp.blogspot.com/-GOLhIB6sws0/V2ls_i0QrOI/AAAAAAAAEic/ssdGN7D04ZUxKZu6tMkyZJW-aRHHhn2aACLcB/s400/script.png" /></a>
+
+
+Думаю, объяснять, почему именно - не стоит.
+Опытные товарищи тут же ощетинятся кучей регулярных выражений и (вместо одной проблемы у них будет две, да) выкорчуют все теги из полученной от пользователя строки. Однако имеется и более элегантное решение (экономящее кучу времени на написание регулярок, хаха), а именно - модуль sanitize-html (<a href="https://www.npmjs.com/package/sanitize-html">https://www.npmjs.com/package/sanitize-html</a>).
+
+Немного изменим /api/index.js
+
+<span>// импортируем sanitize-html</span>
+<span>var</span> sanitize <span>=</span> require<span>(</span><span><span>'</span>sanitize-html<span>'</span></span><span>)</span>
+
+<span>// а эту переменную будем использовать вместо "базы данных"</span>
+<span>// в реальном приложении, конечно, данные будут запрашиваться из БД</span>
+<span>var</span> postData; 
+
+<span>/* этот метод просто извлекает из тела запроса параметр body
+ * и присваевает его значение переменной postData
+ */</span>
+router.post<span>(</span><span><span>'</span>/<span>'</span></span>, <span><span>function</span> <span>(</span>req, res, next)</span> <span>{</span>
+    postData <span>=</span> sanitize<span>(</span>req.body.body, <span>{</span>
+        <span>// в этом объекте можно указать, какие теги разрешены</span>
+        allowedTags: <span>[</span><span><span>'</span>b<span>'</span></span>, <span><span>'</span>i<span>'</span></span>, <span><span>'</span>em<span>'</span></span>, <span><span>'</span>strong<span>'</span></span>, <span><span>'</span>ol<span>'</span></span>, <span><span>'</span>ul<span>'</span></span>, <span><span>'</span>li<span>'</span></span>, <span><span>'</span>a<span>'</span></span><span>]</span>,
+        <span>// здесь задаём разрешённые аттрибуты тегов. </span>
+        <span>// пустой массив запретит все аттрибуты.</span>
+        allowedAttributes: <span>[</span><span>]</span>,
+        <span>// мы не хотим ссылки, но текст - оставим</span>
+        transformTags: <span>{</span>
+            <span><span>'</span><span>a</span><span>'</span></span>: <span>function</span>(tagName, attribs)<span>{</span>
+                <span>// здесь можно написать свою собственную функцию</span>
+                <span>return</span> <span>{</span>
+                    tagName: <span><span>'</span>b<span>'</span></span>
+                <span>}</span>
+            <span>}</span>
+        <span>}</span>
+    <span>}</span><span>)</span>;
+    res.sendStatus<span>(</span><span>201</span><span>)</span>
+<span>}</span><span>)</span>
+
+
+Перезапустим сервер и взглянем на результат.
+
+
+<a href="https://4.bp.blogspot.com/-0KEHo9uKfSk/V2lywDXc7zI/AAAAAAAAEis/0cdKoluW9YoM53KP9Giu9mC8q3oXmfu7wCLcB/s1600/sanitized.png"><img src="https://4.bp.blogspot.com/-0KEHo9uKfSk/V2lywDXc7zI/AAAAAAAAEis/0cdKoluW9YoM53KP9Giu9mC8q3oXmfu7wCLcB/s400/sanitized.png" /></a>
+
+Теперь всё в порядке.
+
+Исходный код проекта доступен на github:
+
+<a href="https://github.com/konrad-molitor/user-content-safety">https://github.com/konrad-molitor/user-content-safety</a>
+
+<a href="https://github.com/konrad-molitor/user-content-safety.git">https://github.com/konrad-molitor/user-content-safety.git</a>
+
+
