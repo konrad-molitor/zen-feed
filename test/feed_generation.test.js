@@ -22,7 +22,26 @@ const sanitizeConfig = {
      'media:description',
      'media:copyright',
      'span'
-    ]
+    ],
+    transformTags: {
+        'iframe': function(tagName, attribs) {
+            // lot of pain down there
+            // and, I guess, we have two problems now...
+            const rx = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/;
+            if (rx.test(attribs.src)) {
+                const videoId = attribs.src.match(rx)[1];
+                return {
+                    tagName: 'a',
+                    attribs: {
+                        href: `https://www.youtu.be/${videoId}`
+                    },
+                    text: 'Youtube'
+                }
+            } else {
+                return '';
+            }            
+        }
+    }
 };
 
 const sampleItems = [

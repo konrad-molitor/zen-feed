@@ -1,6 +1,8 @@
 module.exports = `
 <div dir="ltr" style="text-align: left;" trbidi="on">
 <iframe width="1280" height="720" src="https://www.youtube.com/embed/TtZ1Mk3-vlQ" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="1280" height="720" src="https://google.com" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 <div class="separator" style="clear: both; text-align: center;">
 <a href="https://4.bp.blogspot.com/-pSUzpv74_Ks/V2lnAVjr4fI/AAAAAAAAEh4/4PKG6IasX6knYIdTZc2y98HlIxXUXEyxgCLcB/s1600/9c29dc2a2609311cc4b67c095172d3ea.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="203" width="400" src="https://4.bp.blogspot.com/-pSUzpv74_Ks/V2lnAVjr4fI/AAAAAAAAEh4/4PKG6IasX6knYIdTZc2y98HlIxXUXEyxgCLcB/s400/9c29dc2a2609311cc4b67c095172d3ea.png"></a></div>
 <div style="text-align: right;">

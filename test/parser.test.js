@@ -17,5 +17,16 @@ describe('sanitizing', () => {
         let divs = $('div');
         expect(divs.length).toBe(0);
     });
-    test.todo('should convert youtube iframe to link')
+    test('should convert youtube iframe to link', () => {
+        const sanitized = parse(sampleHtml);
+        let $ = cheerio.load(sanitized);
+        let anchors = $('a[href^="https://www.youtu.be/TtZ1Mk3-vlQ"]');
+        expect(anchors.length).toBe(1);
+    });
+    test('should not handle any other iframes', () => {
+        const sanitized = parse(sampleHtml);
+        let $ = cheerio.load(sanitized);
+        let anchors = $('a[href^="https://google.com"]');
+        expect(anchors.length).toBe(0);
+    })
 })
