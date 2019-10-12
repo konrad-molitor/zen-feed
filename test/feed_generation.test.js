@@ -2,7 +2,6 @@ const {generateFeed} = require('../modules/generateFeed');
 const {filterContent} = require('../modules/generateFeed');
 const {generateItem} = require('../modules/generateFeed');
 const itemTemplate = require('../templates/itemTemplate');
-const categoryList = require('../templates/zenCategoriesList');
 const {getXMLfeed} = require('../modules/generateFeed');
 const convert = require('xml-js');
 const sanitize = require('sanitize-html');
@@ -25,17 +24,16 @@ const sanitizeConfig = {
     ],
     transformTags: {
         'iframe': function(tagName, attribs) {
-            // lot of pain down there
-            // and, I guess, we have two problems now...
             const rx = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/;
             if (rx.test(attribs.src)) {
                 const videoId = attribs.src.match(rx)[1];
+                let title = `https://www.youtube.com/watch?v=${videoId}`;
                 return {
                     tagName: 'a',
                     attribs: {
-                        href: `https://www.youtu.be/${videoId}`
+                        href: `https://www.youtube.com/watch?v=${videoId}`
                     },
-                    text: 'Youtube'
+                    text: title
                 }
             } else {
                 return '';

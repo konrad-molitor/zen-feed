@@ -123,7 +123,10 @@ Sanitizing your content simply gets rid of all HTML-elements except for:
 * ```media:copyright```
 * ```span```
 * ```strike```
-> **Be warned**: it will cut out all ```iframe``` tags, usually used to embed Youtube/Vimeo/etc players. If sanitizing HTML with built in parser breaks your content, turn it off by using ```useParser: false``` in config object, then do sanitize your content yourself in getFeedContent()
+> **Be warned**: it will cut out all ```iframe``` tags, usually used to embed Youtube/Vimeo/etc players. 
+>**For Youtube**'s iframe will be transformed in simple ```a``` tag like this:
+
+    <a href="https://www.youtube.com/watch?v=_video_Id">https://www.youtube.com/watch?v=_video_Id</a>
 
 ## Testing
 [Jest.js](https://jestjs.io/) used for testing. Tests can be found in ```/tests``` directory.

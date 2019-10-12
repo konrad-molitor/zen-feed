@@ -24,12 +24,13 @@ const parse = (html) => {
                 const rx = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/;
                 if (rx.test(attribs.src)) {
                    const videoId = attribs.src.match(rx)[1];
-                    return {
+                   let title = `https://www.youtube.com/watch?v=${videoId}`;
+                   return {
                         tagName: 'a',
                         attribs: {
-                            href: `https://www.youtu.be/${videoId}`
+                            href: `https://www.youtube.com/watch?v=${videoId}`
                         },
-                        text: 'Youtube'
+                        text: title
                     }
                 } else {
                     return '';
