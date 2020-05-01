@@ -8,7 +8,9 @@
     "test-watch": "jest --watch",
     "test-coverage": "jest --coverage",
     "test-verbose": "jest --verbose",
-    "coveralls": "jest --coverage --coverageReporters=text-lcov | ./node_modules/coveralls/bin/coveralls.js"
+    "coveralls": "jest --coverage --coverageReporters=text-lcov | ./node_modules/coveralls/bin/coveralls.js",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -38,6 +40,8 @@
     "cheerio": "^1.0.0-rc.3",
     "mime": "^2.4.4",
     "sanitize-html": "^1.20.1",
-    "xml-js": "^1.6.11"
-  }
+    "xml-js": "^1.6.11",
+    "snyk": "^1.316.1"
+  },
+  "snyk": true
 }
