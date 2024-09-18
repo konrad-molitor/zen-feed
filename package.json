@@ -39,9 +39,9 @@
   "dependencies": {
     "cheerio": "^1.0.0",
     "mime": "^2.5.2",
-    "sanitize-html": "^2.3.3",
+    "sanitize-html": "^2.13.0",
     "xml-js": "^1.6.11",
-    "snyk": "^1.685.0"
+    "snyk": "^1.1293.0"
   },
   "snyk": true
 }
